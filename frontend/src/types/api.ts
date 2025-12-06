@@ -45,6 +45,7 @@ export interface Task {
   completedAt: string | null;
   createdById: string;
   assignedToId: string | null;
+  displayOrder: number;
   createdAt: string;
   updatedAt: string;
   project: {
