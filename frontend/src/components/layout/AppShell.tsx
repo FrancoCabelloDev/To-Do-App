@@ -3,12 +3,15 @@
 import { useState } from 'react';
 import { Topbar } from './Topbar';
 import { Sidebar } from './Sidebar';
+import type { Project } from '@/types/api';
 
 interface AppShellProps {
   children: React.ReactNode;
   selectedProjectId: string | null;
   onSelectProject: (id: string | null) => void;
   onNewProject: () => void;
+  projects: Project[];
+  projectsLoading: boolean;
 }
 
 export function AppShell({
@@ -16,6 +19,8 @@ export function AppShell({
   selectedProjectId,
   onSelectProject,
   onNewProject,
+  projects,
+  projectsLoading,
 }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -27,6 +32,8 @@ export function AppShell({
           selectedProjectId={selectedProjectId}
           onSelectProject={onSelectProject}
           onNewProject={onNewProject}
+          projects={projects}
+          loading={projectsLoading}
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />

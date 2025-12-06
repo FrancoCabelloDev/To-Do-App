@@ -4,20 +4,21 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Folder, CheckSquare, Plus } from 'lucide-react';
-import { useProjects } from '@/hooks/useProjects';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
+import type { Project } from '@/types/api';
 
 interface SidebarProps {
   selectedProjectId: string | null;
   onSelectProject: (id: string | null) => void;
   onNewProject: () => void;
+  projects: Project[];
+  loading: boolean;
   isOpen?: boolean;
   onClose?: () => void;
 }
 
-export function Sidebar({ selectedProjectId, onSelectProject, onNewProject, isOpen = true, onClose }: SidebarProps) {
-  const { projects, loading } = useProjects();
+export function Sidebar({ selectedProjectId, onSelectProject, onNewProject, projects, loading, isOpen = true, onClose }: SidebarProps) {
   const router = useRouter();
 
   const handleAllTasksClick = () => {

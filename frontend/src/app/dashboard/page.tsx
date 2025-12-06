@@ -21,7 +21,7 @@ export default function DashboardPage() {
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  const { projects, createProject } = useProjects();
+  const { projects, loading: projectsLoading, createProject } = useProjects();
   const { tasks, loading: tasksLoading, createTask, updateTask, updateTasksBatch, deleteTask, refetch } = useTasks(
     selectedProjectId || undefined
   );
@@ -120,6 +120,8 @@ export default function DashboardPage() {
       selectedProjectId={selectedProjectId}
       onSelectProject={setSelectedProjectId}
       onNewProject={() => setProjectDialogOpen(true)}
+      projects={projects}
+      projectsLoading={loading}
     >
       <div className="w-full p-4 md:p-6">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
