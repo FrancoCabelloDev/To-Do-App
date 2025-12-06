@@ -124,10 +124,11 @@ export default function DashboardPage() {
 
   const handleCreateProject = async (data: CreateProjectDto) => {
     try {
-      await createProject(data);
-      // Forzar refetch para sincronizar con el backend
-      await refetchProjects();
+      const newProject = await createProject(data);
+      // Cerrar el diálogo inmediatamente
       setProjectDialogOpen(false);
+      // Refetch en background para asegurar sincronización
+      refetchProjects();
     } catch (error) {
       console.error('Failed to create project:', error);
       // No cerrar el diálogo si hay error
