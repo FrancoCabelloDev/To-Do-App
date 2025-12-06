@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { env } from './config/env.js';
 import { errorHandler } from './middlewares/errorHandler.js';
@@ -12,6 +13,8 @@ import authRoutes from './modules/auth/auth.routes.js';
 import projectsRoutes from './modules/projects/projects.routes.js';
 import tasksRoutes from './modules/tasks/tasks.routes.js';
 import tagsRoutes from './modules/tags/tags.routes.js';
+import adminRoutes from './routes/admin.routes.js';
+import debugRoutes from './routes/debug.routes.js';
 
 const app = express();
 
@@ -26,11 +29,16 @@ app.use(
   })
 );
 
+// Cookie parser
+app.use(cookieParser());
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: env.NODE_ENV === 'development' ? 1000 : 200, // Higher limit for development
   message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use('/api/', limiter);
 
@@ -58,6 +66,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectsRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/tags', tagsRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/debug', debugRoutes);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
