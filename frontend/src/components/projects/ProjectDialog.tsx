@@ -53,12 +53,16 @@ export function ProjectDialog({ open, onOpenChange, onSubmit }: ProjectDialogPro
   }, [open, form]);
 
   const handleSubmit = async (values: ProjectFormValues) => {
-    await onSubmit({
-      ...values,
-      description: values.description || undefined,
-    });
-    onOpenChange(false);
-    form.reset();
+    try {
+      await onSubmit({
+        ...values,
+        description: values.description || undefined,
+      });
+      form.reset();
+    } catch (error) {
+      // El error ya se maneja en el dashboard
+      console.error('Error in ProjectDialog:', error);
+    }
   };
 
   return (

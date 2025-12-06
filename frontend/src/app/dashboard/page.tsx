@@ -125,9 +125,12 @@ export default function DashboardPage() {
   const handleCreateProject = async (data: CreateProjectDto) => {
     try {
       await createProject(data);
+      // Esperar un momento para que el estado se actualice
+      await new Promise(resolve => setTimeout(resolve, 50));
       setProjectDialogOpen(false);
     } catch (error) {
       console.error('Failed to create project:', error);
+      // No cerrar el diálogo si hay error
     }
   };
 
