@@ -29,14 +29,25 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login');
+      return;
     }
     // Redirigir admins a su dashboard específico
-    if (!authLoading && profile?.role === 'ADMIN') {
+    if (!authLoading && user && profile?.role === 'ADMIN') {
       router.push('/admin/dashboard');
     }
   }, [user, profile, authLoading, router]);
 
+  // Mostrar loader mientras carga autenticación
   if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  // Mostrar loader mientras carga el perfil (evita el flash)
+  if (user && !profile) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -112,7 +123,12 @@ export default function DashboardPage() {
   };
 
   const handleCreateProject = async (data: CreateProjectDto) => {
-    await createProject(data);
+    try {
+      await createProject(data);
+      setProjectDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to create project:', error);
+    }
   };
 
   return (
