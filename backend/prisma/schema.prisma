@@ -42,6 +42,9 @@ model Profile {
   projects   Project[] @relation("ProjectOwner")
   createdTasks Task[]  @relation("TaskCreator")
   assignedTasks Task[] @relation("TaskAssignee")
+
+  @@index([role])
+  @@index([createdAt])
 }
 
 model Project {
@@ -71,6 +74,7 @@ model Task {
   description String?
   status      TaskStatus    @default(TODO)
   priority    TaskPriority  @default(MEDIUM)
+  displayOrder Int         @default(0)
 
   dueAt       DateTime?
   completedAt DateTime?
@@ -90,8 +94,11 @@ model Task {
 
   @@index([projectId, status])
   @@index([projectId, dueAt])
+  @@index([projectId, displayOrder])
   @@index([createdById])
   @@index([assignedToId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Tag {

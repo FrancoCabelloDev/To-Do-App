@@ -28,6 +28,7 @@ export const updateTaskBodySchema = z.object({
   dueAt: z.string().datetime().optional().nullable(),
   assignedToId: z.string().uuid().optional().nullable(),
   tagIds: z.array(z.string().uuid()).optional(),
+  displayOrder: z.number().int().optional(),
 });
 
 export const updateTaskSchema = {

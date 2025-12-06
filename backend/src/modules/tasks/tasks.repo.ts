@@ -48,7 +48,7 @@ export class TasksRepository {
           },
         },
       },
-      orderBy: [{ dueAt: 'asc' }, { createdAt: 'desc' }],
+      orderBy: [{ displayOrder: 'asc' }, { createdAt: 'desc' }],
     });
   }
 
@@ -174,6 +174,21 @@ export class TasksRepository {
 
     const { tagIds, ...updateData } = data;
 
+    // Validar que los tags existan y pertenezcan al proyecto de la tarea
+    if (tagIds && tagIds.length > 0) {
+      const validTags = await prisma.tag.findMany({
+        where: {
+          id: { in: tagIds },
+          projectId: task.projectId,
+        },
+        select: { id: true },
+      });
+
+      if (validTags.length !== tagIds.length) {
+        throw new Error('One or more tags are invalid or do not belong to this project');
+      }
+    }
+
     // Si cambia el status a DONE, marcar completedAt
     const completedAt =
       data.status === TaskStatus.DONE && task.status !== TaskStatus.DONE
@@ -188,7 +203,7 @@ export class TasksRepository {
         ...updateData,
         dueAt: data.dueAt !== undefined ? (data.dueAt ? new Date(data.dueAt) : null) : undefined,
         completedAt,
-        tags: tagIds
+        tags: tagIds !== undefined
           ? {
               deleteMany: {},
               create: tagIds.map((tagId) => ({

@@ -94,6 +94,28 @@ export class TagsRepository {
     });
   }
 
+  async update(id: string, data: UpdateTagDto, userId: string, userRole: UserRole) {
+    // Verificar permisos primero
+    const tag = await this.findById(id, userId, userRole);
+    if (!tag) {
+      throw new Error('Tag not found');
+    }
+
+    return prisma.tag.update({
+      where: { id },
+      data,
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+            ownerId: true,
+          },
+        },
+      },
+    });
+  }
+
   async delete(id: string, userId: string, userRole: UserRole) {
     // Verificar permisos primero
     const tag = await this.findById(id, userId, userRole);

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { TagsController } from './tags.controller.js';
 import { requireAuth } from '../../middlewares/requireAuth.js';
 import { validate } from '../../middlewares/validate.js';
-import { createTagSchema, tagIdSchema, tagQuerySchema } from './tags.schemas.js';
+import { createTagSchema, tagIdSchema, tagQuerySchema, updateTagSchema } from './tags.schemas.js';
 
 const router = Router();
 const tagsController = new TagsController();
@@ -15,6 +15,13 @@ router.post(
 );
 
 router.get('/', requireAuth, validate(tagQuerySchema), tagsController.getAll.bind(tagsController));
+
+router.patch(
+  '/:id',
+  requireAuth,
+  validate(updateTagSchema),
+  tagsController.update.bind(tagsController)
+);
 
 router.delete(
   '/:id',

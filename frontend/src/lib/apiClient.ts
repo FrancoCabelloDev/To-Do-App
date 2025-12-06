@@ -40,8 +40,18 @@ class ApiClient {
 
       // Si es 401, el token expiró
       if (response.status === 401) {
-        // Redirigir a login se maneja en el componente
-        throw new Error('Unauthorized');
+        // Limpiar el almacenamiento y redirigir a login
+        if (typeof window !== 'undefined') {
+          localStorage.clear();
+          sessionStorage.clear();
+          window.location.href = '/login';
+        }
+        throw new Error('Your session has expired. Please login again.');
+      }
+
+      // Log detallado del error de validación
+      if (error.details) {
+        console.error('Validation error details:', error.details);
       }
 
       throw new Error(error.error || `HTTP ${response.status}`);

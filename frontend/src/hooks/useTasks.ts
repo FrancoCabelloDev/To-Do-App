@@ -45,10 +45,38 @@ export function useTasks(projectId?: string) {
     try {
       const updated = await apiClient.patch<Task>(`/api/tasks/${id}`, data);
       setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
-      toast.success('Task updated successfully');
+      // Solo mostrar toast si no es un cambio de displayOrder (reordenamiento)
+      if (data.displayOrder === undefined) {
+        toast.success('Task updated successfully');
+      }
       return updated;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to update task';
+      toast.error(message);
+      throw err;
+    }
+  };
+
+  const updateTasksBatch = async (updates: { id: string; data: UpdateTaskDto }[]) => {
+    try {
+      // Ejecutar todas las actualizaciones en paralelo sin actualizar el estado intermedio
+      const promises = updates.map(({ id, data }) => 
+        apiClient.patch<Task>(`/api/tasks/${id}`, data)
+      );
+      
+      const updatedTasks = await Promise.all(promises);
+      
+      // Actualizar el estado una sola vez con todas las tareas actualizadas
+      setTasks((prev) => {
+        const taskMap = new Map(updatedTasks.map(t => [t.id, t]));
+        const newTasks = prev.map(t => taskMap.get(t.id) || t);
+        // Ordenar por displayOrder
+        return newTasks.sort((a, b) => a.displayOrder - b.displayOrder);
+      });
+      
+      return updatedTasks;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to update tasks';
       toast.error(message);
       throw err;
     }
@@ -77,6 +105,7 @@ export function useTasks(projectId?: string) {
     refetch: fetchTasks,
     createTask,
     updateTask,
+    updateTasksBatch,
     deleteTask,
   };
 }

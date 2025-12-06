@@ -10,7 +10,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!loading && (!profile || profile.role !== 'ADMIN')) {
-      router.push('/dashboard');
+      router.push('/login');
     }
   }, [profile, loading, router]);
 

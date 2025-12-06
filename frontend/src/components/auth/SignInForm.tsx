@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { createClient } from '@/lib/supabaseClient';
+import { apiClient } from '@/lib/apiClient';
+import type { Profile } from '@/types/api';
 
 export function SignInForm() {
   const [email, setEmail] = useState('');
@@ -28,12 +30,20 @@ export function SignInForm() {
 
       if (error) throw error;
 
+      // Obtener el perfil del usuario para saber su rol
+      const profile = await apiClient.get<Profile>('/api/auth/me');
+
       toast({
         title: 'Success',
         description: 'Signed in successfully!',
       });
 
-      router.push('/dashboard');
+      // Redirigir según el rol
+      if (profile.role === 'ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (error: any) {
       toast({
         title: 'Error',

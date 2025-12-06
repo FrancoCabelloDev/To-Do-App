@@ -145,8 +145,8 @@ export function TasksTable({ onUpdate }: TasksTableProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Título</TableHead>
-                <TableHead>Proyecto</TableHead>
+                <TableHead>ID Tarea</TableHead>
+                <TableHead>Propietario Proyecto</TableHead>
                 <TableHead>Creado Por</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Prioridad</TableHead>
@@ -165,19 +165,16 @@ export function TasksTable({ onUpdate }: TasksTableProps) {
               ) : (
                 tasks.map((task) => (
                   <TableRow key={task.id}>
-                    <TableCell className="font-medium max-w-xs">
-                      <div className="truncate">{task.title}</div>
-                      {task.description && (
-                        <div className="text-xs text-muted-foreground truncate">
-                          {task.description}
-                        </div>
-                      )}
+                    <TableCell className="font-mono text-xs">
+                      {task.id.substring(0, 8)}...
                     </TableCell>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{task.project.name}</div>
+                        <div className="font-medium">
+                          {task.project.owner.fullName || 'Sin nombre'}
+                        </div>
                         <div className="text-xs text-muted-foreground">
-                          {task.project.owner.fullName || task.project.owner.email}
+                          {task.project.owner.email}
                         </div>
                       </div>
                     </TableCell>

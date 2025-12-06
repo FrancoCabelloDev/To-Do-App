@@ -22,7 +22,7 @@ export default function DashboardPage() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const { projects, createProject } = useProjects();
-  const { tasks, loading: tasksLoading, createTask, updateTask, deleteTask } = useTasks(
+  const { tasks, loading: tasksLoading, createTask, updateTask, updateTasksBatch, deleteTask, refetch } = useTasks(
     selectedProjectId || undefined
   );
 
@@ -30,7 +30,11 @@ export default function DashboardPage() {
     if (!authLoading && !user) {
       router.push('/login');
     }
-  }, [user, authLoading, router]);
+    // Redirigir admins a su dashboard específico
+    if (!authLoading && profile?.role === 'ADMIN') {
+      router.push('/admin/dashboard');
+    }
+  }, [user, profile, authLoading, router]);
 
   if (authLoading) {
     return (
@@ -74,6 +78,39 @@ export default function DashboardPage() {
     }
   };
 
+  const handleReorderTask = async (taskId: string, newDisplayOrder: number) => {
+    try {
+      // Obtener todas las tareas actuales
+      const allTasks = [...tasks];
+      
+      // Encontrar la tarea que se movió
+      const taskIndex = allTasks.findIndex(t => t.id === taskId);
+      if (taskIndex === -1) return;
+      
+      // Remover la tarea de su posición actual
+      const [movedTask] = allTasks.splice(taskIndex, 1);
+      
+      // Insertarla en la nueva posición
+      allTasks.splice(newDisplayOrder, 0, movedTask);
+      
+      // Preparar actualizaciones en batch para todas las tareas
+      const updates = allTasks.map((task, index) => ({
+        id: task.id,
+        data: { displayOrder: index }
+      }));
+      
+      // Actualizar todas las tareas en una sola operación y esperar
+      await updateTasksBatch(updates);
+      
+      // Pequeño delay adicional para asegurar que el estado se propague
+      await new Promise(resolve => setTimeout(resolve, 100));
+    } catch (error) {
+      console.error('Failed to reorder task:', error);
+      // Si falla, refrescar para restaurar el orden correcto
+      await refetch();
+    }
+  };
+
   const handleCreateProject = async (data: CreateProjectDto) => {
     await createProject(data);
   };
@@ -107,6 +144,7 @@ export default function DashboardPage() {
           loading={tasksLoading}
           onEdit={handleEditTask}
           onDelete={handleDeleteTask}
+          onReorder={handleReorderTask}
         />
       </div>
 

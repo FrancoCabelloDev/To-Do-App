@@ -3,6 +3,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabaseClient';
+import { apiClient } from '@/lib/apiClient';
+import type { Profile } from '@/types/api';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
@@ -22,7 +24,20 @@ export default function AuthCallbackPage() {
       }
 
       if (session) {
-        router.push('/dashboard');
+        try {
+          // Obtener el perfil del usuario para saber su rol
+          const profile = await apiClient.get<Profile>('/api/auth/me');
+          
+          // Redirigir según el rol
+          if (profile.role === 'ADMIN') {
+            router.push('/admin/dashboard');
+          } else {
+            router.push('/dashboard');
+          }
+        } catch (error) {
+          console.error('Error loading profile:', error);
+          router.push('/dashboard');
+        }
       } else {
         router.push('/login');
       }

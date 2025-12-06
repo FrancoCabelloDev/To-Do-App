@@ -1,5 +1,5 @@
 import { TagsRepository } from './tags.repo.js';
-import type { CreateTagDto } from './tags.schemas.js';
+import type { CreateTagDto, UpdateTagDto } from './tags.schemas.js';
 import type { UserRole } from '@prisma/client';
 
 export class TagsService {
@@ -11,6 +11,10 @@ export class TagsService {
 
   async createTag(data: CreateTagDto, userId: string, userRole: UserRole) {
     return this.repo.create(data, userId, userRole);
+  }
+
+  async updateTag(id: string, data: UpdateTagDto, userId: string, userRole: UserRole) {
+    return this.repo.update(id, data, userId, userRole);
   }
 
   async deleteTag(id: string, userId: string, userRole: UserRole) {

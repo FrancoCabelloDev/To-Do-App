@@ -1,9 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { Settings } from 'lucide-react';
+import { TagSelector } from '@/components/tags/TagSelector';
+import { TagManager } from '@/components/tags/TagManager';
+import { useTags } from '@/hooks/useTags';
 import {
     Dialog,
     DialogContent,
@@ -71,6 +75,11 @@ export function TaskDialog({
         },
     });
 
+    const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+    const [showTagManager, setShowTagManager] = useState(false);
+    const currentProjectId = form.watch('projectId');
+    const { tags, createTag, updateTag, deleteTag, refetch } = useTags(currentProjectId);
+
     useEffect(() => {
         if (task) {
             form.reset({
@@ -81,6 +90,7 @@ export function TaskDialog({
                 priority: task.priority,
                 dueAt: task.dueAt ? task.dueAt.split('T')[0] : '',
             });
+            setSelectedTagIds(task.tags?.map(({ tag }) => tag.id) || []);
         } else {
             form.reset({
                 title: '',
@@ -90,6 +100,7 @@ export function TaskDialog({
                 priority: 'MEDIUM',
                 dueAt: '',
             });
+            setSelectedTagIds([]);
         }
     }, [task, projectId, form]);
 
@@ -102,6 +113,7 @@ export function TaskDialog({
                 status: values.status,
                 priority: values.priority,
                 dueAt: values.dueAt ? new Date(values.dueAt).toISOString() : undefined,
+                tagIds: selectedTagIds,
             };
             await onSubmit(data);
         } else {
@@ -113,17 +125,34 @@ export function TaskDialog({
                 status: values.status,
                 priority: values.priority,
                 dueAt: values.dueAt ? new Date(values.dueAt).toISOString() : undefined,
+                tagIds: selectedTagIds,
             };
             await onSubmit(data);
         }
         
         onOpenChange(false);
         form.reset();
+        setSelectedTagIds([]);
+    };
+
+    const handleCreateTag = async (name: string, color: string) => {
+        if (!currentProjectId) return;
+        await createTag({ projectId: currentProjectId, name, color });
+        await refetch();
+    };
+
+    const handleUpdateTag = async (tagId: string, name: string, color: string) => {
+        await updateTag(tagId, { name, color });
+    };
+
+    const handleDeleteTag = async (tagId: string) => {
+        await deleteTag(tagId);
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <>
+            <Dialog open={open} onOpenChange={onOpenChange}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>{task ? 'Edit Task' : 'Create New Task'}</DialogTitle>
                     <DialogDescription>
@@ -257,6 +286,30 @@ export function TaskDialog({
                             )}
                         />
 
+                        {currentProjectId && (
+                            <>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex-1">
+                                        <TagSelector
+                                            availableTags={tags}
+                                            selectedTagIds={selectedTagIds}
+                                            onTagsChange={setSelectedTagIds}
+                                            onCreateTag={handleCreateTag}
+                                        />
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setShowTagManager(true)}
+                                        className="ml-2"
+                                    >
+                                        <Settings className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </>
+                        )}
+
                         <div className="flex justify-end gap-2">
                             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                                 Cancel
@@ -269,5 +322,18 @@ export function TaskDialog({
                 </Form>
             </DialogContent>
         </Dialog>
+
+        {/* Tag Manager Dialog */}
+        {currentProjectId && (
+            <TagManager
+                open={showTagManager}
+                onOpenChange={setShowTagManager}
+                tags={tags}
+                onCreateTag={handleCreateTag}
+                onUpdateTag={handleUpdateTag}
+                onDeleteTag={handleDeleteTag}
+            />
+        )}
+        </>
     );
 }

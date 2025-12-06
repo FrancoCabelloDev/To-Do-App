@@ -114,8 +114,7 @@ export function ProjectsTable({ onUpdate }: ProjectsTableProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Proyecto</TableHead>
-                <TableHead>Descripción</TableHead>
+                <TableHead>ID Proyecto</TableHead>
                 <TableHead>Propietario</TableHead>
                 <TableHead className="text-right">Tareas</TableHead>
                 <TableHead className="text-right">Etiquetas</TableHead>
@@ -126,16 +125,15 @@ export function ProjectsTable({ onUpdate }: ProjectsTableProps) {
             <TableBody>
               {projects.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
                     No hay proyectos registrados
                   </TableCell>
                 </TableRow>
               ) : (
                 projects.map((project) => (
                   <TableRow key={project.id}>
-                    <TableCell className="font-medium">{project.name}</TableCell>
-                    <TableCell className="max-w-xs truncate">
-                      {project.description || '-'}
+                    <TableCell className="font-mono text-xs">
+                      {project.id.substring(0, 8)}...
                     </TableCell>
                     <TableCell>
                       <div>

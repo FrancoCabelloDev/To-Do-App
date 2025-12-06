@@ -115,6 +115,7 @@ export interface UpdateTaskDto {
   dueAt?: string | null;
   assignedToId?: string | null;
   tagIds?: string[];
+  displayOrder?: number;
 }
 
 export interface CreateTagDto {

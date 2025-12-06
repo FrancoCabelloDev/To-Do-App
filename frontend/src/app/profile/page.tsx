@@ -19,7 +19,11 @@ export default function ProfilePage() {
     if (!loading && !user) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+    // Redirigir admins a su perfil específico
+    if (!loading && profile?.role === 'ADMIN') {
+      router.push('/admin/profile');
+    }
+  }, [user, profile, loading, router]);
 
   if (loading) {
     return (

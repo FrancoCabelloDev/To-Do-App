@@ -30,6 +30,7 @@ interface Stats {
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('users');
 
   useEffect(() => {
     fetchStats();
@@ -37,6 +38,7 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
+      setLoading(true);
       const data = await apiClient.get<Stats>('/api/admin/stats');
       setStats(data);
     } catch (error) {
@@ -139,7 +141,7 @@ export default function AdminDashboard() {
       )}
 
       {/* Data Tables */}
-      <Tabs defaultValue="users" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="users">Usuarios</TabsTrigger>
           <TabsTrigger value="projects">Proyectos</TabsTrigger>
@@ -147,15 +149,15 @@ export default function AdminDashboard() {
         </TabsList>
 
         <TabsContent value="users" className="space-y-4">
-          <UsersTable onUpdate={fetchStats} />
+          {activeTab === 'users' && <UsersTable onUpdate={fetchStats} />}
         </TabsContent>
 
         <TabsContent value="projects" className="space-y-4">
-          <ProjectsTable onUpdate={fetchStats} />
+          {activeTab === 'projects' && <ProjectsTable onUpdate={fetchStats} />}
         </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4">
-          <TasksTable onUpdate={fetchStats} />
+          {activeTab === 'tasks' && <TasksTable onUpdate={fetchStats} />}
         </TabsContent>
       </Tabs>
           </div>

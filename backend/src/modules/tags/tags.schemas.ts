@@ -26,4 +26,15 @@ export const tagQuerySchema = {
   query: tagQueryParamsSchema,
 };
 
+export const updateTagBodySchema = z.object({
+  name: z.string().min(1, 'Name is required').max(50).optional(),
+  color: z.string().max(20).optional(),
+});
+
+export const updateTagSchema = {
+  params: tagIdParamsSchema,
+  body: updateTagBodySchema,
+};
+
 export type CreateTagDto = z.infer<typeof createTagBodySchema>;
+export type UpdateTagDto = z.infer<typeof updateTagBodySchema>;

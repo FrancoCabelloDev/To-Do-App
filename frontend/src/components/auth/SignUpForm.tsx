@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { createClient } from '@/lib/supabaseClient';
+import { apiClient } from '@/lib/apiClient';
+import type { Profile } from '@/types/api';
 
 export function SignUpForm() {
   const [email, setEmail] = useState('');
@@ -50,9 +52,18 @@ export function SignUpForm() {
         description: 'Account created! Please check your email for verification.',
       });
 
-      // Esperar un momento y redirigir
-      setTimeout(() => {
-        router.push('/dashboard');
+      // Esperar un momento y redirigir según el rol
+      setTimeout(async () => {
+        try {
+          const profile = await apiClient.get<Profile>('/api/auth/me');
+          if (profile.role === 'ADMIN') {
+            router.push('/admin/dashboard');
+          } else {
+            router.push('/dashboard');
+          }
+        } catch {
+          router.push('/dashboard');
+        }
       }, 1000);
     } catch (error: any) {
       toast({

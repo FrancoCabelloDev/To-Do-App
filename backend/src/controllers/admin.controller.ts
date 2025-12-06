@@ -238,23 +238,30 @@ export const adminController = {
   // Get dashboard statistics
   async getStats(req: Request, res: Response) {
     try {
+      // Usar queries agregadas más eficientes
       const [
-        totalUsers,
+        userStats,
         totalProjects,
-        totalTasks,
-        adminUsers,
-        clientUsers,
-        completedTasks,
-        pendingTasks,
+        taskStats,
       ] = await Promise.all([
-        prisma.profile.count(),
+        prisma.profile.groupBy({
+          by: ['role'],
+          _count: true,
+        }),
         prisma.project.count(),
-        prisma.task.count(),
-        prisma.profile.count({ where: { role: 'ADMIN' } }),
-        prisma.profile.count({ where: { role: 'CLIENT' } }),
-        prisma.task.count({ where: { status: 'DONE' } }),
-        prisma.task.count({ where: { status: 'TODO' } }),
+        prisma.task.groupBy({
+          by: ['status'],
+          _count: true,
+        }),
       ]);
+
+      const totalUsers = userStats.reduce((sum, stat) => sum + stat._count, 0);
+      const adminUsers = userStats.find(s => s.role === 'ADMIN')?._count || 0;
+      const clientUsers = userStats.find(s => s.role === 'CLIENT')?._count || 0;
+      
+      const totalTasks = taskStats.reduce((sum, stat) => sum + stat._count, 0);
+      const completedTasks = taskStats.find(s => s.status === 'DONE')?._count || 0;
+      const pendingTasks = taskStats.find(s => s.status === 'TODO')?._count || 0;
 
       res.json({
         users: {
