@@ -21,7 +21,7 @@ export default function DashboardPage() {
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  const { projects, loading: projectsLoading, createProject } = useProjects();
+  const { projects, loading: projectsLoading, createProject, refetch: refetchProjects } = useProjects();
   const { tasks, loading: tasksLoading, createTask, updateTask, updateTasksBatch, deleteTask, refetch } = useTasks(
     selectedProjectId || undefined
   );
@@ -125,8 +125,8 @@ export default function DashboardPage() {
   const handleCreateProject = async (data: CreateProjectDto) => {
     try {
       await createProject(data);
-      // Esperar un momento para que el estado se actualice
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // Forzar refetch para sincronizar con el backend
+      await refetchProjects();
       setProjectDialogOpen(false);
     } catch (error) {
       console.error('Failed to create project:', error);
