@@ -1,6 +1,6 @@
 import { prisma } from '../../lib/prisma.js';
 import { UserRole } from '@prisma/client';
-import type { CreateTagDto } from './tags.schemas.js';
+import type { CreateTagDto, UpdateTagDto } from './tags.schemas.js';
 
 export class TagsRepository {
   async findAll(userId: string, userRole: UserRole, projectId?: string) {
