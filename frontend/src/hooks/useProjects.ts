@@ -28,7 +28,7 @@ export function useProjects() {
   const createProject = async (data: CreateProjectDto) => {
     try {
       const newProject = await apiClient.post<Project>('/api/projects', data);
-      setProjects((prev) => [newProject, ...prev]);
+      // No hacer actualización optimista - dejar que refetch maneje la actualización
       toast.success('Project created successfully');
       return newProject;
     } catch (err) {
